@@ -4,6 +4,14 @@ import "fmt"
 import "io"
 import "bufio"
 import "bytes"
+import "os"
+
+var pwd string
+
+func init() {
+	pwd, _ = os.Getwd()
+	fmt.Printf("pwd = %s \n", pwd)
+}
 
 func Downloader(url string) ([]byte, error) {
 	http_req := NewHttpRequest()
