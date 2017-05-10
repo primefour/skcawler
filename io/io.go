@@ -1,8 +1,15 @@
 package io
 
 type PageData struct {
-	TableData []DataElem
-	FileList  []FileElem
+	StartTime  time.Time
+	SpiderName string
+	Prefix     string
+	Url        string
+	ParentUrl  string
+	TableData  []DataElem
+	FileList   []FileElem
+	Time       time.Time
+	RootPath   string
 }
 
 const (

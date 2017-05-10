@@ -4,23 +4,14 @@ import "fmt"
 import "time"
 import "sync"
 
-type DataValue struct {
+type DataElem struct {
 	Name  string
 	Value interface{}
 }
 
-type DataElem struct {
-	SpiderName string
-	Data       DataValue
-	Url        string
-	ParentUrl  string
-	Time       time.Time
-}
-
 type FileElem struct {
-	SpiderName string
-	FileName   string
-	Data       []byte
+	FileName string
+	Data     []byte
 }
 
 var dataElemPool *sync.Pool = &sync.Pool{
@@ -35,34 +26,27 @@ var fileElemPool *sync.Pool = &sync.Pool{
 	},
 }
 
-func GetDataElem(spiderName, url, parentUrl, string, data DateValue, time time.Time) DataElem {
+func GetDataElem(name string, value interface{}) DataElem {
 	elem := dataElemPool.Get().(DataElem)
-	elem.SpiderName = spiderName
-	elem.Data = data
-	elem.Url = url
-	elem.ParentUrl = parentUrl
-	elem.Time = time
+	elem.Name = name
+	elem.Value = value
 	return elem
 }
 
-func GetFileElem(spiderName, name string, bytes []byte) FileElem {
+func GetFileElem(name string, bytes []byte) FileElem {
 	elem := fileElemPool.Get().(FileElem)
-	elem.SpiderName = spiderName
 	elem.FileName = name
 	elem.Data = bytes
 	return elem
 }
 
 func PutDataElem(elem DataElem) {
-	elem.SpiderName = ""
-	elem.Data = nil
-	elem.Url = ""
-	elem.ParentUrl = ""
+	elem.Name = ""
+	elem.Value = nil
 	dataElemPool.Put(elem)
 }
 
 func PutFileElem(elem FileElem) {
-	elem.SpiderName = ""
 	elem.FileName = ""
 	elem.Data = nil
 	fileElemPool.Put(elem)

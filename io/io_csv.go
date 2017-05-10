@@ -3,8 +3,21 @@ package io
 import (
 	"encoding/csv"
 	"fmt"
+	"github.com/primefour/skclawer/log"
+	"github.com/primefour/skclawer/utils"
 	"os"
 )
+
+/*
+type PageData struct {
+	SpiderName string //as table name
+	Url        string //for store file elem
+	ParentUrl  string
+	TableData  []DataElem //for schema
+	FileList   []FileElem //will create a seperate file
+	Time       time.Time //record the time of scraw
+}
+*/
 
 //this is output data elem as csv file
 func init() {
@@ -14,10 +27,31 @@ func init() {
 				err = fmt.Errorf("%v", p)
 			}
 		}()
-		var (
-			namespace = util.FileNameReplace(self.namespace())
-			sheets    = make(map[string]*csv.Writer)
-		)
+
+		dirName := utils.FileNameReplace(pageData.SpiderName)
+		dirName = dirName + pageData.StartTime.Format(RFC3339)
+
+		path := pageData.RootPath + dirName
+
+		fileName = path + pageData.Prefix + "_table.csv"
+
+		f, err := os.Stat(path)
+
+		if err != nil || !f.IsDir() {
+			if err := os.MkdirAll(path, 0777); err != nil {
+				log.E("Error: %v\n", err)
+			}
+		}
+
+		file, err := os.Create(filename)
+
+		if err != nil {
+			log.E("%v", err)
+			continue
+		}
+		file.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
+		writer := csv.NewWriter(file)
+
 		for _, datacell := range self.dataDocker {
 			var subNamespace = util.FileNameReplace(self.subNamespace(datacell))
 			if _, ok := sheets[subNamespace]; !ok {
