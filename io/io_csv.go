@@ -33,7 +33,9 @@ func init() {
 
 		path := pageData.RootPath + dirName
 
-		fileName = path + pageData.Prefix + "_table.csv"
+		fileName := fmt.Sprintf("%s-%s-%v", pageData.Prefix, pageData.Time.Format(RFC3339), "_table.csv")
+
+		filePath := path + fileName
 
 		f, err := os.Stat(path)
 
@@ -43,14 +45,28 @@ func init() {
 			}
 		}
 
-		file, err := os.Create(filename)
+		file, err := os.Create(filePath)
 
 		if err != nil {
 			log.E("%v", err)
-			continue
 		}
+
 		file.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
 		writer := csv.NewWriter(file)
+
+		th := self.MustGetRule(datacell["RuleName"].(string)).ItemFields
+
+		if self.Spider.OutDefaultField() {
+			th = append(th, "当前链接", "上级链接", "下载时间")
+		}
+		sheets[subNamespace].Write(th)
+
+		defer func(file *os.File) {
+			// 发送缓存数据流
+			sheets[subNamespace].Flush()
+			// 关闭文件
+			file.Close()
+		}(file)
 
 		for _, datacell := range self.dataDocker {
 			var subNamespace = util.FileNameReplace(self.subNamespace(datacell))
