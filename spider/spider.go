@@ -14,3 +14,19 @@ type PageTask struct {
 	err   error           // 错误标记
 	sync.Mutex
 }
+
+type Spider struct {
+	RootPath string
+	Name     string
+}
+
+var SpiderList = make(map[string]*Spider, 20)
+
+func GetSpiderByName(name string) (*Spider, bool) {
+	spider, ok := SpiderList[name]
+	return spider, ok
+}
+
+func (self *Spider) GetRootPath() string {
+	return RootPath
+}

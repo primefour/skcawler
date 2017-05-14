@@ -10,6 +10,7 @@ type PageData struct {
 	FileList   []*FileElem
 	ItemFields []string
 	Time       time.Time
+	Writer     interface{}
 }
 
 const (
@@ -51,6 +52,28 @@ func PutPageData(page *PageData) {
 	}
 	page.FileList = nil
 	page.ItemFields = nil
+}
+
+func (self *PageData) GetFileName() string {
+
+}
+
+func (self *PageData) GetRootPath() string {
+	spider, ok = GetSpiderByName(self.SpiderName)
+	if ok {
+		filepath := spider.GetRootPath()
+		if filepath == "" {
+			//set current directory as root path
+		} else {
+			if !filepath.IsAbs(targpath) {
+				targpath, _ = filepath.Abs(targpath)
+			}
+		}
+
+	} else {
+
+	}
+
 }
 
 func (self *PageData) GetItemFields() []string {
