@@ -16,8 +16,10 @@ type PageTask struct {
 }
 
 type Spider struct {
-	RootPath string
-	Name     string
+	RootPath string //root path for store info what scawle
+	Name     string //spider name
+	Prefix   string //store file prefix
+	Writer   map[string]interface{}
 }
 
 var SpiderList = make(map[string]*Spider, 20)

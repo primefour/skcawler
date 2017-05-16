@@ -58,7 +58,7 @@ func Mkdir(Path string) {
 	d, err := os.Stat(p)
 	if err != nil || !d.IsDir() {
 		if err = os.MkdirAll(p, 0777); err != nil {
-			logs.Log.Error("create directory [%s]: %v\n", Path, err)
+			log.E("create directory [%s]: %v\n", Path, err)
 		}
 	}
 }
@@ -122,7 +122,7 @@ func WalkFiles(targpath string, suffixes ...string) (filelist []string) {
 	})
 
 	if err != nil {
-		logs.Log.Error("WalkFiles: %v\n", err)
+		log.E("WalkFiles: %v\n", err)
 		return
 	}
 
@@ -154,7 +154,7 @@ func WalkDir(targpath string, suffixes ...string) (dirlist []string) {
 	})
 
 	if err != nil {
-		logs.Log.Error("WalkDir: %v\n", err)
+		log.E("WalkDir: %v\n", err)
 		return
 	}
 
@@ -187,7 +187,7 @@ func WalkRelFiles(targpath string, suffixes ...string) (filelist []string) {
 	})
 
 	if err != nil {
-		logs.Log.Error("WalkRelFiles: %v\n", err)
+		log.E("WalkRelFiles: %v\n", err)
 		return
 	}
 
@@ -219,7 +219,7 @@ func WalkRelDir(targpath string, suffixes ...string) (dirlist []string) {
 	})
 
 	if err != nil {
-		logs.Log.Error("WalkRelDir: %v\n", err)
+		log.E("WalkRelDir: %v\n", err)
 		return
 	}
 
@@ -311,7 +311,7 @@ func JsonString(obj interface{}) string {
 //检查并打印错误
 func CheckErr(err error) {
 	if err != nil {
-		logs.Log.Error("%v", err)
+		log.E("%v", err)
 	}
 }
 
@@ -454,4 +454,12 @@ func String2Bytes(s string) []byte {
 	x := (*[2]uintptr)(unsafe.Pointer(&s))
 	h := [3]uintptr{x[0], x[1], x[1]}
 	return *(*[]byte)(unsafe.Pointer(&h))
+}
+
+func GetPwd() string {
+	wd, err := os.Getwd()
+	if err != nil {
+		log.E(err)
+	}
+	return wd
 }

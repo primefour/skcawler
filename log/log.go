@@ -259,7 +259,7 @@ func (bl *BeeLogger) Critical(format string, v ...interface{}) {
 }
 
 // Log ERROR level message.
-func (bl *BeeLogger) Error(format string, v ...interface{}) {
+func (bl *BeeLogger) E(format string, v ...interface{}) {
 	if LevelError > bl.level {
 		return
 	}
@@ -268,7 +268,7 @@ func (bl *BeeLogger) Error(format string, v ...interface{}) {
 }
 
 // Log WARNING level message.
-func (bl *BeeLogger) Warning(format string, v ...interface{}) {
+func (bl *BeeLogger) W(format string, v ...interface{}) {
 	if LevelWarning > bl.level {
 		return
 	}
@@ -286,7 +286,7 @@ func (bl *BeeLogger) Notice(format string, v ...interface{}) {
 }
 
 // Log INFORMATIONAL level message.
-func (bl *BeeLogger) Informational(format string, v ...interface{}) {
+func (bl *BeeLogger) I(format string, v ...interface{}) {
 	if LevelInformational > bl.level {
 		return
 	}
@@ -295,7 +295,7 @@ func (bl *BeeLogger) Informational(format string, v ...interface{}) {
 }
 
 // Log DEBUG level message.
-func (bl *BeeLogger) Debug(format string, v ...interface{}) {
+func (bl *BeeLogger) D(format string, v ...interface{}) {
 	if LevelDebug > bl.level {
 		return
 	}
@@ -304,7 +304,7 @@ func (bl *BeeLogger) Debug(format string, v ...interface{}) {
 }
 
 // Log DEBUG level message.
-func (bl *BeeLogger) Vorbose(format string, v ...interface{}) {
+func (bl *BeeLogger) V(format string, v ...interface{}) {
 	if LevelDebug > bl.level {
 		return
 	}

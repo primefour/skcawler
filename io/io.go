@@ -1,6 +1,8 @@
 package io
 
 import "time"
+import "path"
+import "path/filepath"
 
 type PageData struct {
 	SpiderName string //to fetch Spider
@@ -54,26 +56,37 @@ func PutPageData(page *PageData) {
 	page.ItemFields = nil
 }
 
-func (self *PageData) GetFileName() string {
+func (self *PageData) GetFileBaseName() string {
+	spider, ok = GetSpiderByName(self.SpiderName)
+	if ok {
+		fileName := fmt.Sprintf("%s-%s-%v", pageData.Prefix, pageData.Time.Format(RFC3339))
+	} else {
+		log.E("get file base name failed ")
+	}
+}
 
+func (self *PageData) GetSpider() (*Spider, bool) {
+	spider, ok = GetSpiderByName(self.SpiderName)
+	return spider, ok
 }
 
 func (self *PageData) GetRootPath() string {
 	spider, ok = GetSpiderByName(self.SpiderName)
 	if ok {
-		filepath := spider.GetRootPath()
-		if filepath == "" {
+		path := spider.GetRootPath()
+		if path == "" {
 			//set current directory as root path
-		} else {
-			if !filepath.IsAbs(targpath) {
-				targpath, _ = filepath.Abs(targpath)
-			}
+			path = util.GetPwd()
 		}
-
 	} else {
-
+		log.E("get spider %s fail ", self.SpiderName)
+		path = util.GetPwd()
 	}
 
+	if !filepath.IsAbs(path) {
+		path, _ = filepath.Abs(path)
+	}
+	return path
 }
 
 func (self *PageData) GetItemFields() []string {
