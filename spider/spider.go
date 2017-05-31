@@ -15,9 +15,22 @@ type PageTask struct {
 	sync.Mutex
 }
 
+type ParseInterface interface {
+	PageParse(page *PageTask) *PageData
+}
+
+type PageParser struct {
+	RegExpUrl string
+	ParseInterface
+}
+
 type Spider struct {
-	RootPath string
-	Name     string
+	SaveRootPath string
+	SpiderName   string
+	SpiderStatus string
+	SpiderTime   time.Time        //start time
+	Request      *request.Request //the start request
+	PageParses   []PageParser
 }
 
 var SpiderList = make(map[string]*Spider, 20)
@@ -28,5 +41,5 @@ func GetSpiderByName(name string) (*Spider, bool) {
 }
 
 func (self *Spider) GetRootPath() string {
-	return RootPath
+	return SaveRootPath
 }
