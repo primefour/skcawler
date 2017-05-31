@@ -11,8 +11,8 @@ type PageData struct {
 	TableData  []*DataElem
 	FileList   []*FileElem
 	ItemFields []string
-	Time       time.Time
-	Writer     interface{}
+	SubUrls    []string
+	Time       time.Time //fetch time
 }
 
 const (
