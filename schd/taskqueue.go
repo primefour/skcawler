@@ -21,8 +21,9 @@ import (
 type TaskQueue struct {
 	SpiderName string //the own of TaskQueue
 	priority   int
-	RQueue     []string
+	RQueue     chan string
 	RHistory   []int32 //sha256
+	FQueue     map[int32]string
 	hasher     hash.Hash
 	lock       sync.Mutex
 }
@@ -31,8 +32,9 @@ func NewTaskQueue(spiderName string, level int) *TaskQueue {
 	var tmpQueue = new(TaskQueue{
 		SpiderName: spiderName,
 		priority:   level,
-		RQueue:     make([]string, 1024),
+		RQueue:     make(chan string, 1024),
 		RHistory:   make([]int32, 1024),
+		FQueue:     make(map[int32]string, 1024),
 		hash256:    sha256.New(),
 	})
 	return tmpQueue
@@ -64,18 +66,37 @@ func (self *TaskQueue) linkHash(url string) int32 {
 	return *uptr
 }
 
+func (self *TaskQueue) checkFail(value int32) bool {
+	_, ok := self.FQueue[value]
+	return ok
+}
+
 func (self *TaskQueue) AddRequest(url string) {
 	value := linkHash(url)
-	if !checkHistory(value) {
-		append(self.RQueue, url)
+	lock.Lock()
+	defer lock.Unlock()
+	if !(checkHistory(value) || checkFail(value)) {
+		self.RQueue <- url
 	}
 }
 
 func (self *TaskQueue) FetchRequest() string {
+	lock.Lock()
+	defer lock.Unlock()
+	url <- self.RQueue[0]
+	return url
+}
 
+func (self *TaskQueue) FailRequest(url string) {
+	value := linkHash(url)
+	lock.Lock()
+	defer lock.Unlock()
+	self.FQueue[value] = url
 }
 
 func (self *TaskQueue) DoneRequest(url string) {
+	lock.Lock()
+	defer lock.Unlock()
 	hashValue := linkHash(url)
 	append(self.RHistory, hashValue)
 	length = len(self.RHistroy)
