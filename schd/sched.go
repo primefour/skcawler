@@ -22,12 +22,22 @@ func newPTasks(int level) *PTasks {
 	ptask.clock = level
 	ptask.level = level
 	ptask.index = 0
+	ptask.matrix = make(*TaskQueue, 0)
 	return ptask
 }
 
 func (self *PTasks) getTaskQueue() (*TaskQueue, bool) {
 	self.sparse = 0
-	length = len(matrix)
+	length = len(self.matrix)
+
+	if length == 0 {
+		return nil, false
+	}
+
+	if self.index >= length {
+		self.index = 0
+	}
+
 	if self.clock > 0 {
 		self.clock--
 		for self.index < length {
@@ -39,6 +49,7 @@ func (self *PTasks) getTaskQueue() (*TaskQueue, bool) {
 			}
 			self.index++
 		}
+
 		if self.index >= length {
 			self.index = 0
 		}
@@ -52,33 +63,22 @@ func (self *PTasks) resetClock() {
 }
 
 func (self *PTasks) addTaskQueue(task *TaskQueue) {
-	append(matrix, task)
+	append(self.matrix, task)
 }
 
 func (self *PTasks) removeTaskQueue(spiderName string) {
-	var found bool = false
 	length = len(self.matrix)
 	for i, item := range self.matrix {
 		if item.SpiderName == spiderName {
-			found = true
-			if i == length {
-				self.matrix[i] = nil
-			} else {
-				self.matrix[i] = self.matrix[i+1]
-			}
-		}
-		if found {
-			if i == length {
-				self.matrix[i] = nil
-			} else {
-				self.matrix[i] = self.matrix[i+1]
-			}
+			tmp := self.matrix[0:i]
+			tmp = append(tmp, self.matrix[i+1:])
+			self.matrix = tmp
 		}
 	}
 }
 
 type scheduler struct {
-	pqueue []PTasks
+	pqueue []*PTasks
 	pindex int32
 	sync.RWMutex
 }
@@ -86,9 +86,12 @@ type scheduler struct {
 var ss = &scheduler{}
 
 func init() {
-	ss.pqueue = make(PTasks, SCHEDULE_MAX_PRIORITY)
-	for i, item := range ss.pqueue {
-		item = newPTasks(32 - i)
+	ss.pqueue = make(*PTasks, SCHEDULE_MAX_PRIORITY)
+
+	i := 0
+	for i < SCHEDULE_MAX_PRIORITY {
+		ss.pqueue = newPTasks(32 - i)
+		i++
 	}
 }
 
@@ -96,21 +99,38 @@ func AddTaskQueue(spiderName string, level int) *TaskQueue {
 	tqueue := NewTaskQueue(spiderName, level)
 	ss.RLock()
 	defer ss.RUnlock()
-	ss.pqueue[level] = append(ss.pqueue[level], tqueue)
+	ss.pqueue[level].addTaskQueue(tqueue)
 	return tqueue
 }
 
-func FetchTaskQueue() *TaskQueue {
-	i := pindex
-	for i < SCHEDULE_MAX_PRIORITY {
-	}
+func RemoveTaskQueue(spiderName string, level int) {
+	ss.RLock()
+	defer ss.RUnlock()
+	ss.pqueue[level].removeTaskQueue(tqueue)
 }
 
-func Stop() {
-	ss.Lock()
-	defer ss.Unlock()
-	defer func() {
-		recover()
-	}()
-	sdl.matrices = nil
+func FetchTaskQueue() *TaskQueue {
+	ss.RLock()
+	defer ss.RUnlock()
+	i := pindex
+	for i < SCHEDULE_MAX_PRIORITY {
+		q, ok = ss.pqueue[i].getTaskQueue()
+		if ok {
+			i++
+			pindex = i
+			return q
+		} else {
+			i++
+		}
+	}
+
+	if i > SCHEDULE_MAX_PRIORITY {
+		i = 0
+		for i < SCHEDULE_MAX_PRIORITY {
+			ss.pqueue[i].resetClock()
+		}
+		i = 0
+	}
+	pindex = 0
+	return nil
 }

@@ -83,7 +83,7 @@ func (self *TaskQueue) AddRequest(url string) {
 func (self *TaskQueue) FetchRequest() string {
 	lock.Lock()
 	defer lock.Unlock()
-	url <- self.RQueue[0]
+	url <- self.RQueue
 	return url
 }
 
