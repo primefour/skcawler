@@ -1,4 +1,4 @@
-package schd
+package queue
 
 import (
 	"sync"
@@ -109,7 +109,7 @@ func RemoveTaskQueue(spiderName string, level int) {
 	ss.pqueue[level].removeTaskQueue(tqueue)
 }
 
-func FetchTaskQueue() *TaskQueue {
+func fetchTaskQueue() *TaskQueue {
 	ss.RLock()
 	defer ss.RUnlock()
 	i := pindex
@@ -133,4 +133,9 @@ func FetchTaskQueue() *TaskQueue {
 	}
 	pindex = 0
 	return nil
+}
+
+func FetchTask() string {
+	queue := fetchTaskQueue()
+	return queue.FetchQueue()
 }

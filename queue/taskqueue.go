@@ -5,7 +5,7 @@
  **        Create: 2017-05-31 14:55:37
  ** Last Modified: 2017-05-31 14:55:37
  ******************************************************************************/
-package schd
+package queue
 
 import (
 	"bytes"
@@ -80,7 +80,7 @@ func (self *TaskQueue) AddRequest(url string) {
 	}
 }
 
-func (self *TaskQueue) FetchRequest() string {
+func (self *TaskQueue) fetchRequest() string {
 	lock.Lock()
 	defer lock.Unlock()
 	url <- self.RQueue
