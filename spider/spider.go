@@ -25,15 +25,16 @@ type Spider struct {
 	SaveRootPath string
 	SpiderName   string
 	SpiderStatus string
+	SpiderLevel  int32
 	SpiderTime   time.Time        //start time
 	Request      *request.Request //the start request
 	PageParses   []PageParser
 }
 
-var SpiderList = make(map[string]*Spider, 20)
+var SpiderMap = make(map[string]*Spider, 20)
 
 func GetSpiderByName(name string) (*Spider, bool) {
-	spider, ok := SpiderList[name]
+	spider, ok := SpiderMap[name]
 	return spider, ok
 }
 
